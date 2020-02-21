@@ -26,7 +26,7 @@ class NewsDetailedController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		updateUI()
-		//shadowView(view: articleImageView)
+		shadowView(view: headerView)
     }
 
 

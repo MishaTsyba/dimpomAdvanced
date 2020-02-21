@@ -83,11 +83,8 @@ extension NewsListController {
 		guard let url = URL(string: "https://newsapi.org/v2/everything") else { return }
 
 		//Request parameters composing
-		let requestParameters = ["q": "iOS",
-								 "to": "2020-02-17",
-								 "from":  "2020-02-10",
-								 "pageSize": "100"]
-
+		let requestParameters = ["q": "iOS", "to": getCurrentFormattedDate()]
+		debugPrint(requestParameters["to"])
 		//Alamofire request
 		Alamofire.request(url,
 						  method: .get,
@@ -128,6 +125,17 @@ extension NewsListController {
 
 		view.layer.shouldRasterize = true
 		view.layer.rasterizationScale = 1
+	}
+}
+
+//MARK: - Get Current Date in ISO 8601 as String
+extension NewsListController {
+	func getCurrentFormattedDate() -> String {
+		let date = Date()
+		let dateFormatter = DateFormatter()
+		let currentDateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+		dateFormatter.dateFormat = currentDateFormat
+		return dateFormatter.string(from: date)
 	}
 }
 

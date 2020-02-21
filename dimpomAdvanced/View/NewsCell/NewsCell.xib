@@ -58,7 +58,6 @@
                         <constraints>
                             <constraint firstItem="a7v-Vm-EJL" firstAttribute="leading" secondItem="Oag-1i-dUM" secondAttribute="leading" id="2Ad-sm-Wtb"/>
                             <constraint firstItem="a7v-Vm-EJL" firstAttribute="top" secondItem="Oag-1i-dUM" secondAttribute="bottom" constant="12" id="4Ol-e7-QUk"/>
-                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Hdb-rc-IiI" secondAttribute="bottom" constant="2.5" id="5Tj-uN-aIn"/>
                             <constraint firstItem="InO-Gw-LBU" firstAttribute="top" secondItem="MgS-hw-i0w" secondAttribute="top" id="9kf-q0-wfL"/>
                             <constraint firstAttribute="trailing" secondItem="Oag-1i-dUM" secondAttribute="trailing" constant="8" id="Cm1-Cf-Ays"/>
                             <constraint firstItem="a7v-Vm-EJL" firstAttribute="trailing" secondItem="Oag-1i-dUM" secondAttribute="trailing" id="HBU-bH-gfu"/>
@@ -69,6 +68,7 @@
                             <constraint firstItem="Hdb-rc-IiI" firstAttribute="leading" secondItem="a7v-Vm-EJL" secondAttribute="leading" id="b1n-oa-5MF"/>
                             <constraint firstItem="Oag-1i-dUM" firstAttribute="leading" secondItem="MgS-hw-i0w" secondAttribute="leading" constant="8" id="gdd-qb-rsk"/>
                             <constraint firstAttribute="trailing" secondItem="InO-Gw-LBU" secondAttribute="trailing" id="oqT-6U-azv"/>
+                            <constraint firstAttribute="bottom" secondItem="Hdb-rc-IiI" secondAttribute="bottom" constant="5.5" id="pA7-Ai-KGM"/>
                             <constraint firstItem="InO-Gw-LBU" firstAttribute="leading" secondItem="MgS-hw-i0w" secondAttribute="leading" id="sUW-wy-KHI"/>
                         </constraints>
                     </view>
