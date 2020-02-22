@@ -8,6 +8,7 @@
 
 import UIKit
 import Alamofire
+import RealmSwift
 
 class NewsListController: UIViewController {
 
@@ -18,28 +19,24 @@ class NewsListController: UIViewController {
 	@IBOutlet weak var newsListTableView: UITableView!
 
 	var newsArticles: [NewsArticleModel] = []
+	var newsArticlesRealmConverted: [NewsArticleModelRealm] = []
+	var newsArticlesRealmSaved: [NewsArticleModelRealm] = []
+	let realmService = RealmService.shared
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+
+		debugPrint("*********** NewsListController viewDidLoad  **************")
+
 		shadowView(view: headerView)
-		activityIndicator.style = UIActivityIndicatorView.Style.medium
+		newsListTitleLabel.text = "Loading"
+		activityIndicator.isHidden = false
+
 		newsListTableView.delegate = self
 		newsListTableView.dataSource = self
 		newsListTableView.register(UINib(nibName: "NewsCell", bundle: nil), forCellReuseIdentifier: "NewsCell")
-		newsListTitleLabel.text = "Loading"
-		activityIndicator.isHidden = false
-		debugPrint("*********** NewsListController viewDidLoad  **************")
-		getNewsResponseData()
-		newsListTableView.reloadData()
-	}
 
-	override func viewWillAppear(_ animated: Bool) {
-		super.viewWillAppear(true)
-		newsListTitleLabel.text = "Loading"
-		activityIndicator.isHidden = false
-		debugPrint("*********** NewsListController viewWillAppear  **************")
 		getNewsResponseData()
-		newsListTableView.reloadData()
 	}
 }
 
@@ -64,8 +61,6 @@ extension NewsListController: UITableViewDelegate, UITableViewDataSource {
 		let vc = storyboard.instantiateViewController(withIdentifier: "NewsDetailedController") as! NewsDetailedController
 
 		vc.newsArticle = newsArticles[indexPath.row]
-		debugPrint(vc.newsArticle)
-
 		navigationController?.pushViewController(vc, animated: false)
 	}
 
@@ -77,6 +72,7 @@ extension NewsListController: UITableViewDelegate, UITableViewDataSource {
 //MARK: - Alamofire REST request
 extension NewsListController {
 	func getNewsResponseData() {
+		//Activity Indicator start
 		activityIndicator.startAnimating()
 
 		//URL composing
@@ -84,29 +80,68 @@ extension NewsListController {
 
 		//Request parameters composing
 		let requestParameters = ["q": "iOS", "to": getCurrentFormattedDate()]
-		debugPrint(requestParameters["to"])
-		//Alamofire request
-		Alamofire.request(url,
-						  method: .get,
-						  parameters: requestParameters,
-						  encoding: URLEncoding.default,
-						  headers: ["X-Api-Key": "fbd6fda585054e02b88a99eb96d5f676"]).responseData { (response) in
 
-							if let jsonResponse = response.result.value {
-								do {
-									let newsModel = try JSONDecoder().decode(NewsModel.self, from: jsonResponse)
-									if let newsArticles = newsModel.articles {
-										self.newsArticles = newsArticles
-										self.activityIndicator.stopAnimating()
-										self.activityIndicator.isHidden = true
+		//Alamofire request
+		Alamofire
+			.request(url, method: .get, parameters: requestParameters, encoding: URLEncoding.default, headers: ["X-Api-Key": "fbd6fda585054e02b88a99eb96d5f676"]).validate(statusCode: 200..<300).responseData { (response) in
+				switch response.result {
+					case .success:
+						debugPrint("Response Validation Successful")
+						if let jsonResponse = response.result.value {
+							do {
+								let newsModel = try JSONDecoder().decode(NewsModel.self, from: jsonResponse)
+								if let newsArticles = newsModel.articles {
+									debugPrint(newsArticles)
+									self.newsArticles = newsArticles
+									DispatchQueue.main.async {
+
+										debugPrint("************************* Realm Start Convert *********************************")
+										self.newsArticlesRealmConverted = self.parseNewsArticleModelToRealm(with: self.newsArticles)
+										debugPrint(self.newsArticlesRealmConverted.count)
+										debugPrint("************************* Realm End Convert *********************************")
+
+										debugPrint("************************* Realm Start Deleting *********************************")
+										self.realmService.deleteNews()
+										debugPrint("************************* Realm End Deleting *********************************")
+
+										debugPrint("************************* Realm Start Writing *********************************")
+										self.realmService.addNews(news: self.newsArticlesRealmConverted)
+										debugPrint("************************* Realm End Writing *********************************")
 
 										self.newsListTitleLabel.text = "News about: \(requestParameters["q"] ?? "")"
+
+										self.activityIndicator.stopAnimating()
+										self.activityIndicator.isHidden = true
 										self.newsListTableView.reloadData()
 									}
-								} catch {
-									debugPrint(error)
 								}
+							} catch {
+								debugPrint(error)
 							}
+						}
+					case .failure:
+						debugPrint("Response Validation error")
+						DispatchQueue.main.async {
+							if !self.realmService.getNews().isEmpty {
+
+								debugPrint("************************* Realm Start Reading *********************************")
+								self.newsArticlesRealmSaved = self.realmService.getNews()
+								debugPrint("************************* Realm End Reading *********************************")
+
+								debugPrint("************************* Realm Start Loading *********************************")
+								self.newsArticles = self.parseNewsArticleModelFromRealm(with: self.newsArticlesRealmSaved)
+								debugPrint("************************* Realm End Loading *********************************")
+
+								self.newsListTitleLabel.text = "News about: \(requestParameters["q"] ?? "")"
+							} else {
+								self.newsArticles = []
+								self.newsListTitleLabel.text = "Connection Error"
+							}
+							self.activityIndicator.stopAnimating()
+							self.activityIndicator.isHidden = true
+							self.newsListTableView.reloadData()
+						}
+				}
 		}
 	}
 }
@@ -139,3 +174,108 @@ extension NewsListController {
 	}
 }
 
+//MARK: - Parsing NewsArticleModel to NewsArticleModelRealm
+extension NewsListController {
+
+	func parseNewsArticleModelToRealm(with newsArticles: [NewsArticleModel]) -> [NewsArticleModelRealm] {
+		debugPrint("START parseNewsArticleModelToRealm")
+		debugPrint(newsArticles.count)
+
+		var newsArticlesRealm: [NewsArticleModelRealm] = []
+		for article in newsArticles {
+			//debugPrint(article)
+
+			let newsArticleModelRealm = NewsArticleModelRealm()
+			let newsArticleSourceModelRealm = NewsArticleSourceModelRealm()
+
+			if let articleAuthor = article.author {
+				newsArticleModelRealm.articleAuthor = articleAuthor
+				//debugPrint(newsArticleModelRealm.articleAuthor)
+			}
+
+			if let articleTitle = article.title {
+				newsArticleModelRealm.articleTitle = articleTitle
+				//debugPrint(newsArticleModelRealm.articleTitle)
+			}
+
+			if let articleDescription = article.description {
+				newsArticleModelRealm.articleDescription = articleDescription
+				//debugPrint(newsArticleModelRealm.articleDescription)
+			}
+
+			if let articleUrl = article.url {
+				newsArticleModelRealm.articleUrl = articleUrl
+				//debugPrint(newsArticleModelRealm.articleUrl)
+			}
+
+			if let articleUrlToImage = article.urlToImage {
+				newsArticleModelRealm.articleUrlToImage = articleUrlToImage
+				//debugPrint(newsArticleModelRealm.articleUrlToImage)
+			}
+
+			if let articlePublishedAt = article.publishedAt {
+				newsArticleModelRealm.articlePublishedAt = articlePublishedAt
+				//debugPrint(newsArticleModelRealm.articlePublishedAt)
+			}
+
+			if let articleContent = article.content {
+				newsArticleModelRealm.articleContent = articleContent
+				//debugPrint(newsArticleModelRealm.articleContent)
+			}
+
+			if let source = article.source {
+				if let sourceName = source.name {
+					newsArticleSourceModelRealm.sourceName = sourceName
+				}
+
+				if let sourceId = source.id {
+					newsArticleSourceModelRealm.sourceId = sourceId
+				}
+			}
+
+			newsArticleModelRealm.articleSource = newsArticleSourceModelRealm
+			//debugPrint(newsArticleModelRealm.articleSource as? Any)
+			newsArticlesRealm.append(newsArticleModelRealm)
+		}
+
+		debugPrint("END parseNewsArticleModelToRealm")
+		return newsArticlesRealm
+	}
+}
+
+//MARK: - Parsing  NewsArticleModelRealm to NewsArticleModel
+extension NewsListController {
+
+	func parseNewsArticleModelFromRealm(with newsArticlesRealm: [NewsArticleModelRealm]) -> [NewsArticleModel] {
+		debugPrint("parseNewsArticleModelFromRealm")
+		debugPrint(newsArticlesRealm.count)
+
+		var newsArticles: [NewsArticleModel] = []
+		for article in newsArticlesRealm {
+			debugPrint(article)
+			let newsArticleModel = NewsArticleModel()
+			let newsArticleSourceModel = NewsArticleSourceModel()
+
+			newsArticleModel.author = article.articleAuthor
+			newsArticleModel.title = article.articleTitle
+			newsArticleModel.description = article.articleDescription
+			newsArticleModel.url = article.articleUrl
+			newsArticleModel.urlToImage = article.articleUrlToImage
+			newsArticleModel.publishedAt = article.articlePublishedAt
+			newsArticleModel.content = article.articleContent
+
+			if let articleSource = article.articleSource {
+				newsArticleSourceModel.name = articleSource.sourceName
+				newsArticleSourceModel.id = articleSource.sourceId
+			}
+
+			newsArticleModel.source = newsArticleSourceModel
+
+			newsArticles.append(newsArticleModel)
+		}
+
+		debugPrint("END parseNewsArticleModelFromRealm")
+		debugPrint(newsArticles.count)
+		return newsArticles
+	}
+}

@@ -14,14 +14,11 @@ class NewsCell: UITableViewCell {
 	@IBOutlet weak var newsTimeLabel: UILabel!
 	@IBOutlet weak var newsTitleLabel: UILabel!
 	@IBOutlet weak var newsDescriptionLabel: UILabel!
-	//@IBOutlet weak var imageBackView: UIView!
 	@IBOutlet weak var cellBackgroundView: UIView!
 
 	override func awakeFromNib() {
         super.awakeFromNib()
 		shadowView(view: cellBackgroundView)
-		//designView(view: newsImageView)
-		//designView(view: imageBackView)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -33,10 +30,6 @@ class NewsCell: UITableViewCell {
 extension NewsCell {
 
 	func updateNewsCell(news: NewsArticleModel) {
-
-		if let newsContent = news.content {
-			debugPrint(newsContent)
-		}
 
 		if let newsTitle = news.title {
 			newsTitleLabel.text = newsTitle
@@ -57,9 +50,14 @@ extension NewsCell {
 		}
 
 		DispatchQueue.global(qos: .utility).async {
-			if let imageURL = URL(string: news.urlToImage ?? ""), let imageData = try? UIImage(data: Data(contentsOf: imageURL)) {
+			if let imageURL = URL(string: news.urlToImage ?? ""), let imageData = try? Data(contentsOf: imageURL), let image = UIImage(data: imageData) {
 				DispatchQueue.main.async {
-					self.newsImageView.image = imageData
+					debugPrint(imageData.count)
+					if imageData.count < 1 {
+						self.newsImageView.image = UIImage(named: "apple")
+					} else {
+						self.newsImageView.image = image
+					}
 				}
 			}
 		}

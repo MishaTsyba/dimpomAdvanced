@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,6 +18,8 @@
 		3C1AB13023FEF4D900AB68ED /* NewsSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1AB12F23FEF4D900AB68ED /* NewsSearchController.swift */; };
 		3C1AB13223FEF4ED00AB68ED /* NewsListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1AB13123FEF4ED00AB68ED /* NewsListController.swift */; };
 		3C1AB13423FEF50900AB68ED /* NewsDetailedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1AB13323FEF50900AB68ED /* NewsDetailedController.swift */; };
+		3CFEE17124013D720061DD1E /* NewsModelRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFEE17024013D720061DD1E /* NewsModelRealm.swift */; };
+		3CFEE174240144BF0061DD1E /* RealmService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFEE173240144BF0061DD1E /* RealmService.swift */; };
 		C173805CEB5F2602B03DDAC2 /* Pods_dimpomAdvanced.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ADBD74233A9B7CD3F034AD7 /* Pods_dimpomAdvanced.framework */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +39,8 @@
 		3C1AB12F23FEF4D900AB68ED /* NewsSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsSearchController.swift; sourceTree = "<group>"; };
 		3C1AB13123FEF4ED00AB68ED /* NewsListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListController.swift; sourceTree = "<group>"; };
 		3C1AB13323FEF50900AB68ED /* NewsDetailedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDetailedController.swift; sourceTree = "<group>"; };
+		3CFEE17024013D720061DD1E /* NewsModelRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModelRealm.swift; sourceTree = "<group>"; };
+		3CFEE173240144BF0061DD1E /* RealmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmService.swift; sourceTree = "<group>"; };
 		EAD2E7B3667298AC98EAFDF1 /* Pods-dimpomAdvanced.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dimpomAdvanced.debug.xcconfig"; path = "Target Support Files/Pods-dimpomAdvanced/Pods-dimpomAdvanced.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -73,6 +77,7 @@
 		3C1AB10F23FEF3D800AB68ED /* dimpomAdvanced */ = {
 			isa = PBXGroup;
 			children = (
+				3CFEE172240144A60061DD1E /* Services */,
 				3C1AB12C23FEF48900AB68ED /* Resources */,
 				3C1AB12B23FEF47B00AB68ED /* Model */,
 				3C1AB12923FEF45600AB68ED /* View */,
@@ -115,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				3C1AB12D23FEF4B300AB68ED /* NewsModel.swift */,
+				3CFEE17024013D720061DD1E /* NewsModelRealm.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -129,13 +135,20 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		3CFEE172240144A60061DD1E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3CFEE173240144BF0061DD1E /* RealmService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		3D2456FA29480714C2C08CA4 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
 				EAD2E7B3667298AC98EAFDF1 /* Pods-dimpomAdvanced.debug.xcconfig */,
 				393AD55074E416892E8A3FAF /* Pods-dimpomAdvanced.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -264,8 +277,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C1AB13223FEF4ED00AB68ED /* NewsListController.swift in Sources */,
+				3CFEE17124013D720061DD1E /* NewsModelRealm.swift in Sources */,
 				3C1AB12E23FEF4B300AB68ED /* NewsModel.swift in Sources */,
 				3C1AB11123FEF3D800AB68ED /* AppDelegate.swift in Sources */,
+				3CFEE174240144BF0061DD1E /* RealmService.swift in Sources */,
 				3C1AB13023FEF4D900AB68ED /* NewsSearchController.swift in Sources */,
 				3C1AB12623FEF44200AB68ED /* NewsCell.swift in Sources */,
 				3C1AB13423FEF50900AB68ED /* NewsDetailedController.swift in Sources */,

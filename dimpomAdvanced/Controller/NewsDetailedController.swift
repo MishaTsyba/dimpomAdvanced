@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 
 class NewsDetailedController: UIViewController {
 
@@ -28,7 +29,6 @@ class NewsDetailedController: UIViewController {
 		updateUI()
 		shadowView(view: headerView)
     }
-
 
 	@IBAction func didTapBackButton(_ sender: Any) {
 		navigationController?.popViewController(animated: true)
@@ -53,8 +53,19 @@ extension NewsDetailedController {
 			articleDateLabel.text = formatDate(stringDate: date)
 		}
 
-		if let imageURL = URL(string: article.urlToImage ?? ""), let imageData = try? UIImage(data: Data(contentsOf: imageURL)) {
-			articleImageView.image = imageData
+		DispatchQueue.global(qos: .utility).async {
+			if let article = self.newsArticle {
+				if let imageURL = URL(string: article.urlToImage ?? ""), let imageData = try? Data(contentsOf: imageURL), let image = UIImage(data: imageData) {
+					DispatchQueue.main.async {
+						debugPrint(imageData)
+						if imageData.count < 1 {
+							self.articleImageView.image = UIImage(named: "apple")
+						} else {
+							self.articleImageView.image = image
+						}
+					}
+				}
+			}
 		}
 	}
 }
