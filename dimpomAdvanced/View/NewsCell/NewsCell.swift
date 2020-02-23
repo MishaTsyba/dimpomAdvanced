@@ -92,7 +92,7 @@ extension NewsCell {
 
 		//Assign Date formats
 		let currentDateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-		let expectedDateFormat = "MMM d, yyyy"
+		let expectedDateFormat = "MM-dd-yyyy HH:mm"
 
 		//Init DateFormatter
 		let dateFormatter = DateFormatter()

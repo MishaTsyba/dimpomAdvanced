@@ -19,6 +19,7 @@
 		3C1AB13223FEF4ED00AB68ED /* NewsListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1AB13123FEF4ED00AB68ED /* NewsListController.swift */; };
 		3C1AB13423FEF50900AB68ED /* NewsDetailedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1AB13323FEF50900AB68ED /* NewsDetailedController.swift */; };
 		3CD0BC3924026DCB007CAB4E /* NewsListController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD0BC3824026DCB007CAB4E /* NewsListController+Extensions.swift */; };
+		3CD0BC3B2402A516007CAB4E /* NewsDetailedController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD0BC3A2402A516007CAB4E /* NewsDetailedController+Extensions.swift */; };
 		3CFEE17124013D720061DD1E /* NewsModelRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFEE17024013D720061DD1E /* NewsModelRealm.swift */; };
 		3CFEE174240144BF0061DD1E /* RealmService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFEE173240144BF0061DD1E /* RealmService.swift */; };
 		C173805CEB5F2602B03DDAC2 /* Pods_dimpomAdvanced.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ADBD74233A9B7CD3F034AD7 /* Pods_dimpomAdvanced.framework */; };
@@ -41,6 +42,7 @@
 		3C1AB13123FEF4ED00AB68ED /* NewsListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListController.swift; sourceTree = "<group>"; };
 		3C1AB13323FEF50900AB68ED /* NewsDetailedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDetailedController.swift; sourceTree = "<group>"; };
 		3CD0BC3824026DCB007CAB4E /* NewsListController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewsListController+Extensions.swift"; sourceTree = "<group>"; };
+		3CD0BC3A2402A516007CAB4E /* NewsDetailedController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewsDetailedController+Extensions.swift"; sourceTree = "<group>"; };
 		3CFEE17024013D720061DD1E /* NewsModelRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModelRealm.swift; sourceTree = "<group>"; };
 		3CFEE173240144BF0061DD1E /* RealmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmService.swift; sourceTree = "<group>"; };
 		EAD2E7B3667298AC98EAFDF1 /* Pods-dimpomAdvanced.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dimpomAdvanced.debug.xcconfig"; path = "Target Support Files/Pods-dimpomAdvanced/Pods-dimpomAdvanced.debug.xcconfig"; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				3C1AB13123FEF4ED00AB68ED /* NewsListController.swift */,
 				3CD0BC3824026DCB007CAB4E /* NewsListController+Extensions.swift */,
 				3C1AB13323FEF50900AB68ED /* NewsDetailedController.swift */,
+				3CD0BC3A2402A516007CAB4E /* NewsDetailedController+Extensions.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -287,6 +290,7 @@
 				3CFEE174240144BF0061DD1E /* RealmService.swift in Sources */,
 				3C1AB13023FEF4D900AB68ED /* NewsSearchController.swift in Sources */,
 				3C1AB12623FEF44200AB68ED /* NewsCell.swift in Sources */,
+				3CD0BC3B2402A516007CAB4E /* NewsDetailedController+Extensions.swift in Sources */,
 				3C1AB13423FEF50900AB68ED /* NewsDetailedController.swift in Sources */,
 				3C1AB11323FEF3D800AB68ED /* SceneDelegate.swift in Sources */,
 			);
