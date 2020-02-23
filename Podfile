@@ -7,6 +7,6 @@ target 'dimpomAdvanced' do
 
   # Pods for dimpomAdvanced
 pod 'Alamofire', '~> 4.7'
-pod 'AlamofireObjectMapper', '~> 5.2'
 pod 'RealmSwift'
+pod 'SwiftSoup'
 end

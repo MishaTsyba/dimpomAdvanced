@@ -1,35 +1,30 @@
 PODS:
   - Alamofire (4.9.1)
-  - AlamofireObjectMapper (5.2.1):
-    - Alamofire (~> 4.7)
-    - ObjectMapper (~> 3.4)
-  - ObjectMapper (3.5.1)
   - Realm (4.3.2):
     - Realm/Headers (= 4.3.2)
   - Realm/Headers (4.3.2)
   - RealmSwift (4.3.2):
     - Realm (= 4.3.2)
+  - SwiftSoup (2.3.0)
 
 DEPENDENCIES:
   - Alamofire (~> 4.7)
-  - AlamofireObjectMapper (~> 5.2)
   - RealmSwift
+  - SwiftSoup
 
 SPEC REPOS:
   trunk:
     - Alamofire
-    - AlamofireObjectMapper
-    - ObjectMapper
     - Realm
     - RealmSwift
+    - SwiftSoup
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
-  AlamofireObjectMapper: 1989f690e982b71921b9253f53a4f33a9bc00d88
-  ObjectMapper: 70187b8941977c62ccfb423caf6b50be405cabf0
   Realm: 5e92902e2875dff4bb0fd02f67bb737c3d5db2bc
   RealmSwift: 9a360fc7bae04fc2e308a34fbd899d5faa2d6b22
+  SwiftSoup: d78683f7ea0ae5733225a9e1d3bee5b256449df4
 
-PODFILE CHECKSUM: 8cd056ed0c4567342cf7ac212d5a4839c702062c
+PODFILE CHECKSUM: 63b07112d12eb33e45b53852f304abfb25822aac
 
 COCOAPODS: 1.8.4
