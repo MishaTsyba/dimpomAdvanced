@@ -14,14 +14,11 @@ class NewsCell: UITableViewCell {
 	@IBOutlet weak var newsTimeLabel: UILabel!
 	@IBOutlet weak var newsTitleLabel: UILabel!
 	@IBOutlet weak var newsDescriptionLabel: UILabel!
-	//@IBOutlet weak var imageBackView: UIView!
 	@IBOutlet weak var cellBackgroundView: UIView!
 
 	override func awakeFromNib() {
         super.awakeFromNib()
 		shadowView(view: cellBackgroundView)
-		//designView(view: newsImageView)
-		//designView(view: imageBackView)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -33,10 +30,6 @@ class NewsCell: UITableViewCell {
 extension NewsCell {
 
 	func updateNewsCell(news: NewsArticleModel) {
-
-		if let newsContent = news.content {
-			debugPrint(newsContent)
-		}
 
 		if let newsTitle = news.title {
 			newsTitleLabel.text = newsTitle
@@ -57,9 +50,17 @@ extension NewsCell {
 		}
 
 		DispatchQueue.global(qos: .utility).async {
-			if let imageURL = URL(string: news.urlToImage ?? ""), let imageData = try? UIImage(data: Data(contentsOf: imageURL)) {
+			guard let imageUrl = URL(string: news.urlToImage ?? "") else { return }
+			do {
+				let imageData = try Data(contentsOf: imageUrl)
+				let image = UIImage(data: imageData)
 				DispatchQueue.main.async {
-					self.newsImageView.image = imageData
+					self.newsImageView.image = image
+				}
+			} catch {
+				debugPrint(error)
+				DispatchQueue.main.async {
+					self.newsImageView.image = UIImage(named: "connectionlost")
 				}
 			}
 		}
@@ -73,13 +74,13 @@ extension NewsCell {
 	}
 
 	func shadowView(view: UIView) {
-		view.layer.borderWidth = 0.8
+		view.layer.borderWidth = 0.3
 		view.layer.borderColor = UIColor.black.cgColor
 		view.layer.masksToBounds = false
 		view.layer.shadowColor = UIColor.black.cgColor
-		view.layer.shadowOffset = CGSize(width: 0, height: 0)
-		view.layer.shadowOpacity = 5
-		view.layer.shadowRadius = 1
+		view.layer.shadowOffset = CGSize(width: 0, height: 1)
+		view.layer.shadowOpacity = 3
+		view.layer.shadowRadius = 3
 
 		view.layer.shouldRasterize = true
 		view.layer.rasterizationScale = 1
@@ -91,7 +92,7 @@ extension NewsCell {
 
 		//Assign Date formats
 		let currentDateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-		let expectedDateFormat = "MMM d, yyyy"
+		let expectedDateFormat = "MM-dd-yyyy HH:mm"
 
 		//Init DateFormatter
 		let dateFormatter = DateFormatter()

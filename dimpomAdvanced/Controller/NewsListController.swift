@@ -7,127 +7,47 @@
 //
 
 import UIKit
-import Alamofire
 
 class NewsListController: UIViewController {
 
+	//MARK: - Outlet variables
 	@IBOutlet weak var headerView: UIView!
 	@IBOutlet weak var newsListTitleLabel: UILabel!
 	@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-
 	@IBOutlet weak var newsListTableView: UITableView!
 
+	//MARK: - Custom variables
+	let realmService = RealmService.shared
 	var newsArticles: [NewsArticleModel] = []
+	var newsArticlesRealmConverted: [NewsArticleModelRealm] = []
+	var newsArticlesRealmSaved: [NewsArticleModelRealm] = []
+	var url = "https://newsapi.org/v2/everything"
+	var keyword = "iOS"
+	var newsSortingByTime = "publishedAt"
+	var headers = ["X-Api-Key": "fbd6fda585054e02b88a99eb96d5f676"]
+	var pageNumber: Int = 1
+	var pageSize: Int = 10
+	var newsMaxCount: Int = 100
+	var isLoading: Bool = false
 
+	//MARK: - viewDidLoad
 	override func viewDidLoad() {
 		super.viewDidLoad()
+
 		shadowView(view: headerView)
-		activityIndicator.style = UIActivityIndicatorView.Style.medium
+		newsListTitleLabel.text = "Loading"
+		activityIndicator.isHidden = false
+
+		newsListTableView.register(UINib(nibName: "NewsCell", bundle: nil), forCellReuseIdentifier: "NewsCell")
 		newsListTableView.delegate = self
 		newsListTableView.dataSource = self
-		newsListTableView.register(UINib(nibName: "NewsCell", bundle: nil), forCellReuseIdentifier: "NewsCell")
-		newsListTitleLabel.text = "Loading"
-		activityIndicator.isHidden = false
-		debugPrint("*********** NewsListController viewDidLoad  **************")
-		getNewsResponseData()
-		newsListTableView.reloadData()
-	}
+		newsListTableView.refreshControl = pullToRefreshNews()
 
-	override func viewWillAppear(_ animated: Bool) {
-		super.viewWillAppear(true)
-		newsListTitleLabel.text = "Loading"
-		activityIndicator.isHidden = false
-		debugPrint("*********** NewsListController viewWillAppear  **************")
-		getNewsResponseData()
-		newsListTableView.reloadData()
-	}
-}
-
-//MARK: - UITableViewDelegate
-extension NewsListController: UITableViewDelegate, UITableViewDataSource {
-	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return newsArticles.count
-	}
-
-	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCell(withIdentifier: "NewsCell", for: indexPath) as! NewsCell
-		cell.updateNewsCell(news: newsArticles[indexPath.row])
-		return cell
-	}
-
-	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		tableView.deselectRow(at: indexPath, animated: true)
-
-		debugPrint("*********** NewsListController didSelectRowAt  **************")
-
-		let storyboard = UIStoryboard(name: "Main", bundle: nil)
-		let vc = storyboard.instantiateViewController(withIdentifier: "NewsDetailedController") as! NewsDetailedController
-
-		vc.newsArticle = newsArticles[indexPath.row]
-		debugPrint(vc.newsArticle)
-
-		navigationController?.pushViewController(vc, animated: false)
-	}
-
-	func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-		return UITableView.automaticDimension
-	}
-}
-
-//MARK: - Alamofire REST request
-extension NewsListController {
-	func getNewsResponseData() {
-		activityIndicator.startAnimating()
-
-		//URL composing
-		guard let url = URL(string: "https://newsapi.org/v2/everything") else { return }
-
-		//Request parameters composing
-		let requestParameters = ["q": "iOS",
-								 "to": "2020-02-17",
-								 "from":  "2020-02-10",
-								 "pageSize": "100"]
-
-		//Alamofire request
-		Alamofire.request(url,
-						  method: .get,
-						  parameters: requestParameters,
-						  encoding: URLEncoding.default,
-						  headers: ["X-Api-Key": "fbd6fda585054e02b88a99eb96d5f676"]).responseData { (response) in
-
-							if let jsonResponse = response.result.value {
-								do {
-									let newsModel = try JSONDecoder().decode(NewsModel.self, from: jsonResponse)
-									if let newsArticles = newsModel.articles {
-										self.newsArticles = newsArticles
-										self.activityIndicator.stopAnimating()
-										self.activityIndicator.isHidden = true
-
-										self.newsListTitleLabel.text = "News about: \(requestParameters["q"] ?? "")"
-										self.newsListTableView.reloadData()
-									}
-								} catch {
-									debugPrint(error)
-								}
-							}
+		if newsArticles.isEmpty {
+			isLoading = true
+			getNews(stringUrl: url, keyword: keyword, date: getCurrentFormattedDate(), newsSorting: newsSortingByTime, pageSize: pageSize, page: pageNumber, headers: headers)
 		}
 	}
 }
 
-//MARK: - Design UI
-extension NewsListController {
-
-	func shadowView(view: UIView) {
-		view.layer.borderWidth = 0.8
-		view.layer.borderColor = UIColor.black.cgColor
-		view.layer.masksToBounds = false
-		view.layer.shadowColor = UIColor.black.cgColor
-		view.layer.shadowOffset = CGSize(width: 0, height: 0)
-		view.layer.shadowOpacity = 3
-		view.layer.shadowRadius = 0.8
-
-		view.layer.shouldRasterize = true
-		view.layer.rasterizationScale = 1
-	}
-}
 
