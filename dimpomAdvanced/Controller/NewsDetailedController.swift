@@ -21,6 +21,7 @@ class NewsDetailedController: UIViewController {
 	@IBOutlet weak var articleAuthorLabel: UILabel!
 	@IBOutlet weak var articleDateLabel: UILabel!
 	@IBOutlet weak var backButton: UIButton!
+	@IBOutlet weak var articlePhotoView: UIView!
 
 	var newsArticle: NewsArticleModel?
 
@@ -28,6 +29,7 @@ class NewsDetailedController: UIViewController {
         super.viewDidLoad()
 		updateUI()
 		shadowView(view: headerView)
+		shadowView(view: articlePhotoView)
     }
 
 	@IBAction func didTapBackButton(_ sender: Any) {
@@ -54,16 +56,18 @@ extension NewsDetailedController {
 		}
 
 		DispatchQueue.global(qos: .utility).async {
-			if let article = self.newsArticle {
-				if let imageURL = URL(string: article.urlToImage ?? ""), let imageData = try? Data(contentsOf: imageURL), let image = UIImage(data: imageData) {
-					DispatchQueue.main.async {
-						debugPrint(imageData)
-						if imageData.count < 1 {
-							self.articleImageView.image = UIImage(named: "apple")
-						} else {
-							self.articleImageView.image = image
-						}
-					}
+			guard let article = self.newsArticle else { return }
+			guard let imageUrl = URL(string: article.urlToImage ?? "") else { return }
+			do {
+				let imageData = try Data(contentsOf: imageUrl)
+				let image = UIImage(data: imageData)
+				DispatchQueue.main.async {
+					self.articleImageView.image = image
+				}
+			} catch {
+				debugPrint(error)
+				DispatchQueue.main.async {
+					self.articleImageView.image = UIImage(named: "connectionlost")
 				}
 			}
 		}

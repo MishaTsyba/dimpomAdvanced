@@ -2,17 +2,17 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "apple.jpg",
+      "filename" : "connectionlost.jpeg",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "apple@2x.jpg",
+      "filename" : "connectionlost@2x.jpeg",
       "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "filename" : "apple@3x.jpg",
+      "filename" : "connectionlost@3x.jpeg",
       "scale" : "3x"
     }
   ],

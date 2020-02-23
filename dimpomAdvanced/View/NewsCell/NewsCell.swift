@@ -50,14 +50,17 @@ extension NewsCell {
 		}
 
 		DispatchQueue.global(qos: .utility).async {
-			if let imageURL = URL(string: news.urlToImage ?? ""), let imageData = try? Data(contentsOf: imageURL), let image = UIImage(data: imageData) {
+			guard let imageUrl = URL(string: news.urlToImage ?? "") else { return }
+			do {
+				let imageData = try Data(contentsOf: imageUrl)
+				let image = UIImage(data: imageData)
 				DispatchQueue.main.async {
-					debugPrint(imageData.count)
-					if imageData.count < 1 {
-						self.newsImageView.image = UIImage(named: "apple")
-					} else {
-						self.newsImageView.image = image
-					}
+					self.newsImageView.image = image
+				}
+			} catch {
+				debugPrint(error)
+				DispatchQueue.main.async {
+					self.newsImageView.image = UIImage(named: "connectionlost")
 				}
 			}
 		}
@@ -71,13 +74,13 @@ extension NewsCell {
 	}
 
 	func shadowView(view: UIView) {
-		view.layer.borderWidth = 0.8
+		view.layer.borderWidth = 0.3
 		view.layer.borderColor = UIColor.black.cgColor
 		view.layer.masksToBounds = false
 		view.layer.shadowColor = UIColor.black.cgColor
-		view.layer.shadowOffset = CGSize(width: 0, height: 0)
-		view.layer.shadowOpacity = 5
-		view.layer.shadowRadius = 1
+		view.layer.shadowOffset = CGSize(width: 0, height: 1)
+		view.layer.shadowOpacity = 3
+		view.layer.shadowRadius = 3
 
 		view.layer.shouldRasterize = true
 		view.layer.rasterizationScale = 1
