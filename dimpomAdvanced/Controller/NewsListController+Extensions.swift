@@ -240,9 +240,7 @@ extension NewsListController {
 		if newsArticles.count <= newsMaxCount {
 			isLoading = true
 			newsArticles = []
-			realmService.deleteNews()
 			getNews(stringUrl: url, keyword: keyword, date: getCurrentFormattedDate(), newsSorting: newsSortingByTime, pageSize: pageSize, page: pageNumber, headers: headers)
-			self.newsListTableView.reloadData()
 			debugPrint("pull on refresh")
 		}
 		sender.endRefreshing()
