@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class NewsCell: UITableViewCell {
 
@@ -48,21 +49,10 @@ extension NewsCell {
 		} else {
 			newsDescriptionLabel.text = "no time"
 		}
-
-		DispatchQueue.global(qos: .utility).async {
-			guard let imageUrl = URL(string: news.urlToImage ?? "") else { return }
-			do {
-				let imageData = try Data(contentsOf: imageUrl)
-				let image = UIImage(data: imageData)
-				DispatchQueue.main.async {
-					self.newsImageView.image = image
-				}
-			} catch {
-				debugPrint(error)
-				DispatchQueue.main.async {
-					self.newsImageView.image = UIImage(named: "connectionlost")
-				}
-			}
+		if let urlString = news.urlToImage, let url = URL(string: urlString) {
+			newsImageView.kf.setImage(with: url)
+		} else {
+			newsImageView.image = UIImage(named: "connectionlost")
 		}
 	}
 }

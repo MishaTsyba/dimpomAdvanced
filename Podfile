@@ -8,5 +8,5 @@ target 'dimpomAdvanced' do
   # Pods for dimpomAdvanced
 pod 'Alamofire', '~> 4.7'
 pod 'RealmSwift'
-pod 'SwiftSoup'
+pod 'Kingfisher', '~> 5.0'
 end
