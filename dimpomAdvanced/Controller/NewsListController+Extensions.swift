@@ -23,7 +23,7 @@ extension NewsListController: UITableViewDelegate, UITableViewDataSource {
 	}
 
 	func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-		if newsArticles.count < newsMaxCount && indexPath.row >= newsArticles.count - 1 {
+		if newsArticles.count < newsMaxCount && indexPath.row >= newsArticles.count - 1 && !isLoading {
 			pageNumber += 1
 			self.isLoading = true
 			getNews(stringUrl: url, keyword: keyword, date: getCurrentFormattedDate(), newsSorting: newsSortingByTime, pageSize: pageSize, page: pageNumber, headers: headers)
@@ -43,12 +43,22 @@ extension NewsListController: UITableViewDelegate, UITableViewDataSource {
 //MARK: - Controller functionality
 extension NewsListController {
 
+	//MARK: - Request News
+	func requestNews() {
+		if isConnectedToInternet() {
+			isLoading = true
+			getNews(stringUrl: url, keyword: keyword, date: getCurrentFormattedDate(), newsSorting: newsSortingByTime, pageSize: pageSize, page: pageNumber, headers: headers)
+		} else {
+			self.loadDataFromRealm()
+			self.newsListTableView.reloadData()
+		}
+	}
 	//MARK: - getNews
 	func getNews(stringUrl: String, keyword: String, date: String, newsSorting: String, pageSize: Int, page: Int, headers: [String: String]) {
 		if isLoading {
+			activityIndicator.startAnimating()
 			guard let url = URL(string: stringUrl) else { return }
-			let requestParameters = ["q": keyword, "to": date, "pageSize": pageSize, "page": page, "sortBy": newsSorting] as [String : Any]
-			debugPrint(newsSorting)
+			let requestParameters = ["q": keyword,  "to": date, "pageSize": pageSize, "page": page, "sortBy": newsSorting] as [String : Any]
 			let headers = headers
 			makeRequest(url: url, requestParameters: requestParameters, headers: headers)
 		}
@@ -58,36 +68,32 @@ extension NewsListController {
 	func makeRequest(url: URL, requestParameters: [String: Any], headers: [String: String]) {
 		Alamofire
 			.request(url, method: .get, parameters: requestParameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseData { (response) in
+				self.refreshControl.endRefreshing()
+				self.isLoading = false
 				switch response.result {
 				case .success:
-					debugPrint("Response Validation Successful")
-					self.isLoading = false
 					self.activityIndicator.startAnimating()
 					guard let jsonResponse = response.result.value else { return }
 					do {
 						let newsModel = try JSONDecoder().decode(NewsModel.self, from: jsonResponse)
 						guard let newsArticles = newsModel.articles else { return }
 						self.newsArticles.append(contentsOf: newsArticles)
-						DispatchQueue.main.async {
-							self.saveDataToRealm(newsArticles: self.newsArticles, requestParameters: requestParameters)
-							self.newsListTableView.reloadData()
-						}
+						debugPrint("Response Validation Successful")
+						debugPrint("\(self.newsArticles)")
+						self.saveDataToRealm(newsArticles: self.newsArticles)
+						self.newsListTableView.reloadData()
 					} catch {
 						debugPrint(error)
 					}
 				case let .failure(error):
 					debugPrint("Response Validation error")
 					debugPrint(error)
-					DispatchQueue.main.async {
-						self.loadDataFromRealm(requestParameters: requestParameters)
-						self.newsListTableView.reloadData()
-					}
 				}
 		}
 	}
 
 	//MARK: - saveDataToRealm
-	func saveDataToRealm(newsArticles: [NewsArticleModel], requestParameters: [String: Any]) {
+	func saveDataToRealm(newsArticles: [NewsArticleModel]) {
 
 		debugPrint("************************* Realm Start Convert *********************************")
 		self.newsArticlesRealmConverted = self.parseNewsArticleModelToRealm(with: newsArticles)
@@ -101,32 +107,21 @@ extension NewsListController {
 		self.realmService.addNews(news: self.newsArticlesRealmConverted)
 		debugPrint("************************* Realm End Writing *********************************")
 
-		guard let keyword = requestParameters["q"] else { return }
-		self.newsListTitleLabel.text = "Latest News about: \(keyword)"
-		self.updateUI()
+		self.hideActivityUI()
 	}
 
 	//MARK: - loadDataFromRealm
-	func loadDataFromRealm(requestParameters: [String: Any]) {
+	func loadDataFromRealm() {
 
-		if !self.realmService.getNews().isEmpty {
+		debugPrint("************************* Realm Start Reading *********************************")
+		self.newsArticlesRealmSaved = self.realmService.getNews()
+		debugPrint("************************* Realm End Reading *********************************")
 
-			debugPrint("************************* Realm Start Reading *********************************")
-			self.newsArticlesRealmSaved = self.realmService.getNews()
-			debugPrint("************************* Realm End Reading *********************************")
+		debugPrint("************************* Realm Start Loading *********************************")
+		self.newsArticles = self.parseNewsArticleModelFromRealm(with: self.newsArticlesRealmSaved)
+		debugPrint("************************* Realm End Loading *********************************")
 
-			debugPrint("************************* Realm Start Loading *********************************")
-			self.newsArticles = self.parseNewsArticleModelFromRealm(with: self.newsArticlesRealmSaved)
-			debugPrint("************************* Realm End Loading *********************************")
-
-			guard let keyword = requestParameters["q"] else { return }
-			self.newsListTitleLabel.text = "Saved News about: \(keyword)"
-			self.updateUI()
-		} else {
-			self.activityIndicator.isHidden = true
-			self.newsListTitleLabel.text = "Connection Error"
-			self.newsArticles = []
-		}
+		self.hideActivityUI()
 	}
 
 	//MARK: - parseNewsArticleModelToRealm
@@ -229,21 +224,13 @@ extension NewsListController {
 		return newsArticles
 	}
 
-	//MARK: - pullToRefreshNews
-	func pullToRefreshNews() -> UIRefreshControl {
-		let refreshControl = UIRefreshControl()
-		refreshControl.addTarget(self, action: #selector(refreshAction(sender:)), for: .valueChanged)
-		return refreshControl
-	}
-
+	//MARK: - Pull to refresh refreshAction
 	@objc func refreshAction(sender: UIRefreshControl) {
-		if newsArticles.count <= newsMaxCount {
-			isLoading = true
-			newsArticles = []
-			getNews(stringUrl: url, keyword: keyword, date: getCurrentFormattedDate(), newsSorting: newsSortingByTime, pageSize: pageSize, page: pageNumber, headers: headers)
-			debugPrint("pull on refresh")
-		}
-		sender.endRefreshing()
+		isLoading = true
+		self.newsArticles = []
+		refreshControl.beginRefreshing()
+		getNews(stringUrl: url, keyword: keyword, date: getCurrentFormattedDate(), newsSorting: newsSortingByTime, pageSize: pageSize, page: pageNumber, headers: headers)
+		self.newsListTableView.reloadData()
 	}
 
 	//MARK: - navigateToDetailedNews
@@ -254,11 +241,11 @@ extension NewsListController {
 		navigationController?.pushViewController(vc, animated: false)
 	}
 
-	//MARK: - updateUI
-	func updateUI() {
+	//MARK: - hideActivityUI
+	func hideActivityUI() {
 		self.activityIndicator.stopAnimating()
 		self.activityIndicator.isHidden = true
-		self.newsListTableView.reloadData()
+		self.newsListTitleLabel.isHidden = true
 	}
 
 	//MARK: - Design UI
@@ -282,5 +269,23 @@ extension NewsListController {
 		let currentDateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
 		dateFormatter.dateFormat = currentDateFormat
 		return dateFormatter.string(from: date)
+	}
+}
+
+//MARK: - UITextFieldDelegate
+extension NewsListController: UITextFieldDelegate {
+
+	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+		switch textField {
+		case searchTextField:
+			searchTextField.resignFirstResponder()
+		default:
+			searchTextField.resignFirstResponder()
+		}
+		return true
+	}
+
+	func isConnectedToInternet() -> Bool {
+		return NetworkReachabilityManager()?.isReachable ?? false
 	}
 }
