@@ -17,31 +17,20 @@ extension NewsDetailedController {
 		atricleTitleLabel.text = article.title
 
 		if let source = article.source{
-			articleSourceLabel.text = "From: " + (source.name ?? "")
+			articleSourceLabel.text = "From: " + (source.name ?? "no source")
 		}
 
 		articleContentLabel.text = article.content
-		articleAuthorLabel.text = "By: " + (article.author ?? "")
+		articleAuthorLabel.text = "By: " + (article.author ?? "no author")
 
 		if let date = article.publishedAt {
 			articleDateLabel.text = formatDate(stringDate: date)
 		}
 
-		DispatchQueue.global(qos: .utility).async {
-			guard let article = self.newsArticle else { return }
-			guard let imageUrl = URL(string: article.urlToImage ?? "") else { return }
-			do {
-				let imageData = try Data(contentsOf: imageUrl)
-				let image = UIImage(data: imageData)
-				DispatchQueue.main.async {
-					self.articleImageView.image = image
-				}
-			} catch {
-				debugPrint(error)
-				DispatchQueue.main.async {
-					self.articleImageView.image = UIImage(named: "connectionlost")
-				}
-			}
+		if let urlString = article.urlToImage, let url = URL(string: urlString) {
+			articleImageView.kf.setImage(with: url)
+		} else {
+			articleImageView.image = UIImage(named: "connectionlost")
 		}
 	}
 }

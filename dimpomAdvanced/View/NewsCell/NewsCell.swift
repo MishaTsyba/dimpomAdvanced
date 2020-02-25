@@ -49,6 +49,7 @@ extension NewsCell {
 		} else {
 			newsDescriptionLabel.text = "no time"
 		}
+
 		if let urlString = news.urlToImage, let url = URL(string: urlString) {
 			newsImageView.kf.setImage(with: url)
 		} else {
