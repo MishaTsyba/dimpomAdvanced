@@ -1,1 +1,1 @@
-# dimpomAdvanced
+# NewsFeeder
